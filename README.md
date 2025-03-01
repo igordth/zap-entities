@@ -18,3 +18,4 @@ Basic library [go.uber.org/zap](https://github.com/uber-go/zap)
 Links:
 
 * https://clickhouse.com/docs/interfaces/http
+* io.Discard, os.Stdout

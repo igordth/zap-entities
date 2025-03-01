@@ -17,3 +17,9 @@ run-multi:
 # Run elk example
 run-elk:
 	@cd .. && go run ./example/elk
+
+# Run clickhouse example
+run-clickhouse:
+	docker compose -p zap-core-clickhouse down -v
+	docker compose -p zap-core-clickhouse --project-directory ./clickhouse/build up -d
+	cd .. && go run ./example/clickhouse
