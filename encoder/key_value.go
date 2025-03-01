@@ -1,9 +1,9 @@
 package encoder
 
 import (
+	"github.com/igordth/tostring"
 	"go.uber.org/zap/zapcore"
 	"time"
-	"zap-cores/convtostr"
 )
 
 type KeyValue struct {
@@ -18,7 +18,7 @@ func NewKeyValue(key string) *KeyValue {
 func (c *KeyValue) EncodeTime(inp time.Time, fn zapcore.TimeEncoder) (string, string) {
 	switch {
 	case fn == nil:
-		c.Value = convtostr.AnyStringer(inp)
+		c.Value = tostring.Stringer(inp)
 	default:
 		fn(inp, c)
 	}
@@ -28,7 +28,7 @@ func (c *KeyValue) EncodeTime(inp time.Time, fn zapcore.TimeEncoder) (string, st
 func (c *KeyValue) EncodeLevel(inp zapcore.Level, fn zapcore.LevelEncoder) (string, string) {
 	switch {
 	case fn == nil:
-		c.Value = convtostr.AnyStringer(inp)
+		c.Value = tostring.Stringer(inp)
 	default:
 		fn(inp, c)
 	}
@@ -38,7 +38,7 @@ func (c *KeyValue) EncodeLevel(inp zapcore.Level, fn zapcore.LevelEncoder) (stri
 func (c *KeyValue) EncodeCaller(inp zapcore.EntryCaller, fn zapcore.CallerEncoder) (string, string) {
 	switch {
 	case fn == nil:
-		c.Value = convtostr.AnyStringer(inp)
+		c.Value = tostring.Stringer(inp)
 	default:
 		fn(inp, c)
 	}
@@ -48,7 +48,7 @@ func (c *KeyValue) EncodeCaller(inp zapcore.EntryCaller, fn zapcore.CallerEncode
 func (c *KeyValue) EncodeName(inp string, fn zapcore.NameEncoder) (string, string) {
 	switch {
 	case fn == nil:
-		c.Value = convtostr.AnyStringer(inp)
+		c.Value = tostring.Stringer(inp)
 	default:
 		fn(inp, c)
 	}

@@ -63,7 +63,10 @@ func (w wHttp) Write(p []byte) (n int, err error) {
 	if err != nil {
 		return 0, errors.Wrap(err, "http.Client.Do")
 	}
-	defer res.Body.Close()
+	err = res.Body.Close()
+	if err != nil {
+		return 0, errors.Wrap(err, "response.Body.Close")
+	}
 
 	// check request status
 	switch {
