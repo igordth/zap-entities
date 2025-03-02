@@ -1,41 +1,41 @@
 package main
 
 import (
+	"github.com/igordth/zap-entities/rotation"
 	"go.uber.org/zap"
 	"gopkg.in/natefinch/lumberjack.v2"
-	"zap-cores/rotation"
 )
 
 func main() {
 	// default core
-	file := "./example/rotation/log/default.log"
-	core, atomic := rotation.NewDefaultCore(file)
+	core := rotation.NewDefaultCore("./example/rotation/log/default.log")
 	log := zap.New(core)
-	for i := 0; i <= 100; i++ {
+	for i := 0; i < 100; i++ {
 		log.Info("loop log", zap.Int("i", i))
-		log.Debug("loop log", zap.Int("i", i)) // not write before i <= 50, by default InfoLevel
-		if i == 50 {
-			// change log level to debug
-			atomic.SetLevel(zap.DebugLevel)
-		}
 	}
 
 	// core with self config
-	fishString := "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-	core, _ = rotation.NewCore(
+	atomic := zap.NewAtomicLevelAt(zap.InfoLevel)
+	fishString := "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt..."
+	core = rotation.NewCore(
 		&lumberjack.Logger{
-			Filename:   "./example/rotation/log/rotation.log",
+			Filename:   "./example/rotation/log/custom.log",
 			MaxSize:    1,
 			MaxAge:     1,
 			MaxBackups: 1,
 			LocalTime:  true,
 			Compress:   true,
 		},
-		zap.InfoLevel,
-		nil,
+		rotation.DefaultEncoderConfig,
+		atomic,
 	)
 	log = zap.New(core)
-	for i := 0; i <= 20000; i++ {
-		log.Info("loop log", zap.Int("i", i), zap.String("fishString", fishString))
+	for i := 1; i <= 7000; i++ {
+		log := log.With(zap.Int("i", i), zap.String("fishString", fishString))
+		log.Info("loop log")
+		log.Debug("loop log") // write only after 50 line
+		if i == 50 {
+			atomic.SetLevel(zap.DebugLevel) // turn on debug level
+		}
 	}
 }

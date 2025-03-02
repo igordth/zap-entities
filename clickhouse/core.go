@@ -1,9 +1,9 @@
 package clickhouse
 
 import (
+	"github.com/igordth/zap-entities/writer"
 	"go.uber.org/zap/zapcore"
 	"net/http"
-	"zap-cores/writer"
 )
 
 func NewCore(cfg EncoderConfig, level zapcore.LevelEnabler, url string) zapcore.Core {

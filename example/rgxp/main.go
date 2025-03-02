@@ -1,20 +1,20 @@
 package main
 
 import (
+	"github.com/igordth/zap-entities/rgxp"
+	"github.com/igordth/zap-entities/rotation"
+	"github.com/igordth/zap-entities/stdout"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"regexp"
-	"zap-cores/rgxp"
-	"zap-cores/rotation"
-	"zap-cores/stdout"
 )
 
 func main() {
-	// define cores
-	appleCore, _ := rotation.NewDefaultCore("./example/rgxp/log/apple.log")
-	bananaCore, _ := rotation.NewDefaultCore("./example/rgxp/log/banana.log")
-	cherryCore, _ := rotation.NewDefaultCore("./example/rgxp/log/cherry.log")
-	stdCore, _ := stdout.NewCore(zap.InfoLevel)
+	// basic cores
+	appleCore := rotation.NewDefaultCore("./example/rgxp/log/apple.log")
+	bananaCore := rotation.NewDefaultCore("./example/rgxp/log/banana.log")
+	cherryCore := rotation.NewDefaultCore("./example/rgxp/log/cherry.log")
+	stdCore := stdout.NewCore(stdout.DefaultEncoderConfig, zap.InfoLevel)
 
 	// rgxp cores
 	rgxpLog := zap.New(zapcore.NewTee(

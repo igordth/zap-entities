@@ -6,29 +6,30 @@ import (
 	"os"
 )
 
-const (
-	DefaultTimeLayout = "2006-01-02T15:04:05.999"
+var (
+	DefaultEncoderConfig = zapcore.EncoderConfig{
+		TimeKey:       "T",
+		LevelKey:      "L",
+		NameKey:       "N",
+		CallerKey:     "C",
+		FunctionKey:   zapcore.OmitKey,
+		MessageKey:    "M",
+		StacktraceKey: "S",
+		LineEnding:    zapcore.DefaultLineEnding,
+		EncodeLevel:   zapcore.CapitalColorLevelEncoder,
+		EncodeTime:    zapcore.TimeEncoderOfLayout("2006-01-02T15:04:05.999"),
+	}
 )
 
-func NewCore(l zapcore.Level) (zapcore.Core, zap.AtomicLevel) {
-	// set encoder config
-	encoderCfg := zap.NewDevelopmentEncoderConfig()
-	encoderCfg.EncodeTime = zapcore.TimeEncoderOfLayout(DefaultTimeLayout)
-	encoderCfg.EncodeLevel = zapcore.CapitalColorLevelEncoder
-
-	// create encoder
-	encoder := zapcore.NewConsoleEncoder(encoderCfg)
-
-	// atomic level
-	atomic := zap.NewAtomicLevelAt(l)
-
-	// create core
-	core := zapcore.NewCore(encoder, zapcore.AddSync(os.Stdout), atomic)
-
-	return core, atomic
+func NewCore(encoderCfg zapcore.EncoderConfig, level zapcore.LevelEnabler) zapcore.Core {
+	return zapcore.NewCore(
+		zapcore.NewConsoleEncoder(encoderCfg),
+		zapcore.AddSync(os.Stdout),
+		level,
+	)
 }
 
 func NewLogger() *zap.Logger {
-	core, _ := NewCore(zapcore.DebugLevel)
+	core := NewCore(DefaultEncoderConfig, zapcore.DebugLevel)
 	return zap.New(core)
 }

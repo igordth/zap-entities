@@ -1,4 +1,4 @@
-module zap-cores
+module github.com/igordth/zap-entities
 
 go 1.22.0
 
@@ -10,4 +10,4 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )
 
-require go.uber.org/multierr v1.10.0 // indirect
+require go.uber.org/multierr v1.11.0 // indirect

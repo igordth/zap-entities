@@ -1,10 +1,10 @@
 package clickhouse
 
 import (
+	buf "github.com/igordth/zap-entities/buffer"
+	enc "github.com/igordth/zap-entities/encoder"
 	"go.uber.org/zap/buffer"
 	"go.uber.org/zap/zapcore"
-	buf "zap-cores/buffer"
-	enc "zap-cores/encoder"
 )
 
 type encoder struct {
@@ -35,17 +35,20 @@ func (e *encoder) EncodeEntry(ent zapcore.Entry, fields []zapcore.Field) (*buffe
 
 	// value of TimeColumn with encode EncodeTime
 	b.Append(
-		enc.NewKeyValue(e.TimeColumn).EncodeTime(ent.Time, e.EncodeTime),
+		e.TimeColumn,
+		new(enc.Field).Time(ent.Time, e.EncodeTime),
 	)
 
 	// value of LevelColumn with encode EncodeLevel
 	b.Append(
-		enc.NewKeyValue(e.LevelColumn).EncodeLevel(ent.Level, e.EncodeLevel),
+		e.LevelColumn,
+		new(enc.Field).Level(ent.Level, e.EncodeLevel),
 	)
 
 	// value of NameColumn with encode EncodeName
 	b.Append(
-		enc.NewKeyValue(e.NameColumn).EncodeName(ent.LoggerName, e.EncodeName),
+		e.NameColumn,
+		new(enc.Field).Name(ent.LoggerName, e.EncodeName),
 	)
 
 	// value of MessageColumn
@@ -59,11 +62,10 @@ func (e *encoder) EncodeEntry(ent zapcore.Entry, fields []zapcore.Field) (*buffe
 		b.Append(e.FunctionColumn, ent.Caller.Function)
 		// value of CallerColumn with encode EncodeCaller
 		b.Append(
-			enc.NewKeyValue(e.CallerColumn).EncodeCaller(ent.Caller, e.EncodeCaller),
+			e.CallerColumn,
+			new(enc.Field).Caller(ent.Caller, e.EncodeCaller),
 		)
 	}
-
-	// todo may by buf.Free()
 
 	return b.Buffer()
 }

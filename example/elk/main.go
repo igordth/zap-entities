@@ -1,11 +1,11 @@
 package main
 
 import (
+	"github.com/igordth/zap-entities/elk"
+	"github.com/igordth/zap-entities/stdout"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
-	"zap-cores/elk"
-	"zap-cores/stdout"
 )
 
 func main() {
@@ -20,10 +20,10 @@ func main() {
 	}
 
 	// elk core
-	coreElk, _ := elk.NewCore(writer, zap.InfoLevel)
+	coreElk := elk.NewCore(writer, zap.InfoLevel)
 
 	// stdout core
-	coreStd, _ := stdout.NewCore(zap.DebugLevel)
+	coreStd := stdout.NewCore(stdout.DefaultEncoderConfig, zap.DebugLevel)
 
 	// logger with elk & stdout cores
 	log := zap.New(zapcore.NewTee(coreElk, coreStd))

@@ -2,8 +2,8 @@ package main
 
 import (
 	"errors"
+	"github.com/igordth/zap-entities/clickhouse"
 	"go.uber.org/zap"
-	"zap-cores/clickhouse"
 )
 
 func main() {

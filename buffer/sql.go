@@ -34,12 +34,12 @@ func NewSQL(tableName string, lineEnding string) SQL {
 	}
 }
 
-func (q *sql) Append(key string, value string) {
-	if key == "" || value == "" {
+func (q *sql) Append(column string, value string) {
+	if column == "" || value == "" {
 		return
 	}
 	value = strings.Replace(value, "'", "\\'", -1)
-	q.columns = append(q.columns, key)
+	q.columns = append(q.columns, column)
 	q.values = append(q.values, value)
 }
 
