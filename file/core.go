@@ -1,20 +1,11 @@
-package rotation
+package file
 
 import (
+	"github.com/igordth/zap-entities/writer"
 	"go.uber.org/zap/zapcore"
-	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 var (
-	DefaultWriter = func(file string) *lumberjack.Logger {
-		return &lumberjack.Logger{
-			Filename:  file,
-			MaxSize:   128,
-			MaxAge:    90,
-			LocalTime: true,
-			Compress:  true,
-		}
-	}
 	DefaultEncoderConfig = zapcore.EncoderConfig{
 		TimeKey:        "ts",
 		LevelKey:       "level",
@@ -31,7 +22,7 @@ var (
 	}
 )
 
-func NewCore(w *lumberjack.Logger, encCfg zapcore.EncoderConfig, level zapcore.LevelEnabler) zapcore.Core {
+func NewCore(encCfg zapcore.EncoderConfig, w writer.File, level zapcore.LevelEnabler) zapcore.Core {
 	return zapcore.NewCore(
 		zapcore.NewConsoleEncoder(encCfg),
 		zapcore.AddSync(w),
@@ -39,10 +30,10 @@ func NewCore(w *lumberjack.Logger, encCfg zapcore.EncoderConfig, level zapcore.L
 	)
 }
 
-func NewDefaultCore(file string) zapcore.Core {
+func NewDefaultCore(fileName string) zapcore.Core {
 	return NewCore(
-		DefaultWriter(file),
 		DefaultEncoderConfig,
+		writer.NewFile(fileName),
 		zapcore.InfoLevel,
 	)
 }

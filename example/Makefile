@@ -24,3 +24,7 @@ run-clickhouse:
 	docker compose -p zap-core-clickhouse --project-directory ./clickhouse/build up -d
 	sleep 3s # wait docker
 	cd .. && go run ./example/clickhouse
+
+# Run file example
+run-file:
+	@cd .. && go run ./example/file

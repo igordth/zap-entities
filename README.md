@@ -11,9 +11,6 @@ Basic library [go.uber.org/zap](https://github.com/uber-go/zap).
 
 Core for write logs to stdout
 
-* `NewCore` - create core
-* `NewLogger` - create logger with default options
-
 ```go
 import "github.com/igordth/zap-entities/stdout"
 
@@ -26,8 +23,26 @@ func main() {
     logByCore.Info("hello world from core")
 }
 ```
+_Example in:_ https://github.com/igordth/zap-entities/tree/master/example/stdout/main.go
 
-_Example in:_ https://github.com/igordth/zap-entities/tree/master/examples/stdout/main.go
+## File
+
+Core for write logs to file.
+
+```go
+import (
+    "github.com/igordth/zap-entities/file"
+    "go.uber.org/zap"
+)
+
+func main() {
+    core := file.NewDefaultCore("file.log")
+    log := zap.New(core)
+    log.Info("hello world")
+}
+```
+
+_Example in:_ https://github.com/igordth/zap-entities/tree/master/example/file/main.go
 
 ## ELK (Elasticsearch,Logstash,Kibana)
 
@@ -37,18 +52,19 @@ Using library [ecszap](https://pkg.go.dev/go.elastic.co/ecszap)
 ```go
 import (
     "github.com/igordth/zap-entities/elk"
+    "github.com/igordth/zap-entities/writer"
     "go.uber.org/zap"
 )
 
 func main() {
-    // todo set file writer
-    core := elk.NewCore(writer, zap.InfoLevel)
+    w := writer.NewFile("./example/elk/log/elk.log")
+    core := elk.NewDefaultCore(writer, zap.InfoLevel)
     log := zap.New(core)
     log.Info("hello world")
 }
 ```
 
-_Example in:_ https://github.com/igordth/zap-entities/tree/master/examples/elk/main.go
+_Example in:_ https://github.com/igordth/zap-entities/tree/master/example/elk/main.go
 
 ## Rotation
 
@@ -63,27 +79,12 @@ import (
 )
 
 func main() {
-    coreDefault := rotation.NewDefaultCore("default.log")
-    logDefault := zap.New(coreDefault)
-    logDefault.Info("default log")
-
-    coreCustom = rotation.NewCore(
-        &lumberjack.Logger{
-            Filename:   "custom.log",
-            MaxSize:    1,
-            MaxAge:     1,
-            MaxBackups: 1,
-            LocalTime:  true,
-            Compress:   true,
-        },
-        rotation.DefaultEncoderConfig,
-        zap.InfoLevel,
-    )
-    logCustom := zap.New(coreCustom)
-    logCustom.Info("custom log")
+    core := rotation.NewDefaultCore("default.log")
+    log := zap.New(coreDefault)
+    log.Info("default log")
 ```
 
-_Example in:_ https://github.com/igordth/zap-entities/tree/master/examples/rotation/main.go
+_Example in:_ https://github.com/igordth/zap-entities/tree/master/example/rotation/main.go
 
 ## Rgxp
 
@@ -92,8 +93,8 @@ Using library [regexp](https://pkg.go.dev/regexp)
 
 ```go
 import (
+    "github.com/igordth/zap-entities/file"
     "github.com/igordth/zap-entities/rgxp"
-    "github.com/igordth/zap-entities/rotation"
     "github.com/igordth/zap-entities/stdout"
     "go.uber.org/zap"
     "go.uber.org/zap/zapcore"
@@ -102,21 +103,21 @@ import (
 
 func main() {
     // basic cores
-    appleCore := rotation.NewDefaultCore("apple.log")
-    bananaCore := rotation.NewDefaultCore("banana.log")
+    appleCore := file.NewDefaultCore("apple.log")
+    bananaCore := file.NewDefaultCore("banana.log")
 
-    // rgxp cores
-    rgxpLog := zap.New(zapcore.NewTee(
+    // log rgxp with file cores
+    log := zap.New(zapcore.NewTee(
         rgxp.NewNamedCore(appleCore, regexp.MustCompile("apple")),
         rgxp.NewNamedCore(bananaCore, regexp.MustCompile("banana")),
     ))
 
-    rgxpLog.Named("apple").Info("log to apple.log")
-    rgxpLog.Named("banana").Info("log to banana.log")
+    log.Named("apple").Info("log to apple.log")
+    log.Named("banana").Info("log to banana.log")
 }
 ```
 
-_Example in:_ https://github.com/igordth/zap-entities/tree/master/examples/rgxp/main.go
+_Example in:_ https://github.com/igordth/zap-entities/tree/master/example/rgxp/main.go
 
 ## Clickhouse
 
@@ -129,13 +130,13 @@ import (
 )
 
 func main() {
-    core := clickhouse.NewCore(clickhouse.DefaultEncoderConfig, zap.InfoLevel, "http://localhost:8123")
+    core := clickhouse.NewDefaultCore("http://localhost:8123")
     log := zap.New(core)
     log.Info("hello world")
 }
 ```
 
-_Example in:_ https://github.com/igordth/zap-entities/tree/master/examples/clickhouse/main.go
+_Example in:_ https://github.com/igordth/zap-entities/tree/master/example/clickhouse/main.go
 
 # Encoder package
 
@@ -225,6 +226,35 @@ Methods:
 Writers for `zapcore.Core` which belong to the interface `zapcore.WriteSyncer` or `io.Writer`.  
 Used in `zapcore.NewCore(encoder, WRITER, lebelEncoder)`
 
+## File
+
+Writer file - save logs to file.
+
+Interface
+
+```go
+type File interface {
+    io.Writer
+    // SetCreateMode - change permission for create directories and file
+    SetCreateMode(fMode, dMode os.FileMode) File
+    // SetTruncateFlag - set truncate flag for os.OpenFile
+    SetTruncateFlag(t bool) File
+}
+```
+
+Example
+
+```go
+import (
+    "github.com/igordth/zap-entities/writer"
+)
+
+func main() {
+    w := writer.NewFile("./example/file/log/file.log")
+    // todo ...
+}
+```
+
 ## Http
 
 Writer http - send logs by http.
@@ -232,24 +262,12 @@ Writer http - send logs by http.
 ```go
 import (
     "github.com/igordth/zap-entities/writer"
-    "go.uber.org/zap/zapcore"
     "net/http"
 )
 
 func main() {
-    // init writer
-    httpWriter := writer.NewHttp(writer.HttpDefaultClient, "http://localhost:8123", http.MethodPost)
-
-    // init core with writer httpWriter
-    core := zapcore.NewCore(
-        clickhouse.NewEncoder(clickhouse.DefaultEncoderConfig),
-        zapcore.AddSync(httpWriter),
-        zap.InfoLevel,
-    )
-	
-    // init log
-    log := zap.New(core)
-    log.Info("hello world")
+    w := writer.NewHttp(writer.HttpDefaultClient, "http://localhost:8123", http.MethodPost)
+    // todo ...
 }
 ```
 
@@ -268,5 +286,6 @@ func main() {
    2. Kafka
 2. Telegram
 3. Grpc writer
-4. Simple file writer
+4. Limited by size file writer
 5. check creating dir in rotation on alpine
+6. lumberjack.v2 use fork with normal file mode

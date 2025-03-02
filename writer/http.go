@@ -10,6 +10,10 @@ import (
 	"time"
 )
 
+type Http interface {
+	io.Writer
+}
+
 var (
 	HttpDefaultClient = &http.Client{
 		Transport: &http.Transport{
@@ -29,7 +33,7 @@ type wHttp struct {
 	Method  string
 }
 
-func NewHttp(client *http.Client, url, method string) io.Writer {
+func NewHttp(client *http.Client, url, method string) Http {
 	return &wHttp{client, url, method}
 }
 

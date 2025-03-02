@@ -29,7 +29,10 @@ func NewCore(encoderCfg zapcore.EncoderConfig, level zapcore.LevelEnabler) zapco
 	)
 }
 
+func NewDefaultCore() zapcore.Core {
+	return NewCore(DefaultEncoderConfig, zapcore.DebugLevel)
+}
+
 func NewLogger() *zap.Logger {
-	core := NewCore(DefaultEncoderConfig, zapcore.DebugLevel)
-	return zap.New(core)
+	return zap.New(NewDefaultCore())
 }

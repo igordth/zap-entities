@@ -7,9 +7,8 @@ import (
 )
 
 func main() {
-	log := zap.New(
-		clickhouse.NewCore(clickhouse.DefaultEncoderConfig, zap.InfoLevel, "http://localhost:8123"),
-	)
+	core := clickhouse.NewDefaultCore("http://localhost:8123")
+	log := zap.New(core)
 
 	log.
 		Named("name").

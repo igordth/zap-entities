@@ -3,27 +3,20 @@ package main
 import (
 	"github.com/igordth/zap-entities/elk"
 	"github.com/igordth/zap-entities/stdout"
+	"github.com/igordth/zap-entities/writer"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 func main() {
 	// writer for elk core
-	writer := &lumberjack.Logger{
-		Filename:   "./example/elk/log/elk.log",
-		MaxSize:    128,
-		MaxAge:     7,
-		MaxBackups: 1,
-		LocalTime:  true,
-		Compress:   false,
-	}
+	w := writer.NewFile("./example/elk/log/elk.log")
 
 	// elk core
-	coreElk := elk.NewCore(writer, zap.InfoLevel)
+	coreElk := elk.NewDefaultCore(w)
 
 	// stdout core
-	coreStd := stdout.NewCore(stdout.DefaultEncoderConfig, zap.DebugLevel)
+	coreStd := stdout.NewDefaultCore()
 
 	// logger with elk & stdout cores
 	log := zap.New(zapcore.NewTee(coreElk, coreStd))

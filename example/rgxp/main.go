@@ -1,8 +1,8 @@
 package main
 
 import (
+	"github.com/igordth/zap-entities/file"
 	"github.com/igordth/zap-entities/rgxp"
-	"github.com/igordth/zap-entities/rotation"
 	"github.com/igordth/zap-entities/stdout"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -11,13 +11,13 @@ import (
 
 func main() {
 	// basic cores
-	appleCore := rotation.NewDefaultCore("./example/rgxp/log/apple.log")
-	bananaCore := rotation.NewDefaultCore("./example/rgxp/log/banana.log")
-	cherryCore := rotation.NewDefaultCore("./example/rgxp/log/cherry.log")
-	stdCore := stdout.NewCore(stdout.DefaultEncoderConfig, zap.InfoLevel)
+	appleCore := file.NewDefaultCore("./example/rgxp/log/apple.log")
+	bananaCore := file.NewDefaultCore("./example/rgxp/log/banana.log")
+	cherryCore := file.NewDefaultCore("./example/rgxp/log/cherry.log")
+	stdCore := stdout.NewDefaultCore()
 
-	// rgxp cores
-	rgxpLog := zap.New(zapcore.NewTee(
+	// log rgxp with file cores
+	log := zap.New(zapcore.NewTee(
 		rgxp.NewNamedCore(appleCore, regexp.MustCompile("apple")),
 		rgxp.NewNamedCore(bananaCore, regexp.MustCompile("banana")),
 		rgxp.NewNamedCore(cherryCore, regexp.MustCompile("cherry")),
@@ -25,14 +25,14 @@ func main() {
 	))
 
 	// log to apple.log by name apple
-	rgxpLog.Named("apple").Info("log to apple.log by name")
+	log.Named("apple").Info("log to apple.log by name")
 
 	// log to apple.log & banana.log by name apple
-	rgxpLog.
+	log.
 		Named("apple").
 		Named("banana").
 		Info("log to apple.log & banana.log by name")
 
 	// log to cherry.log by name and `stdout` by message
-	rgxpLog.Named("cherry").Info("log to cherry.log by name and `stdout` by message")
+	log.Named("cherry").Info("log to cherry.log by name and `stdout` by message")
 }
