@@ -10,9 +10,9 @@ run-stdout:
 run-rotation:
 	@cd .. && go run ./example/rotation
 
-# Run multi example
-run-multi:
-	@cd .. && go run ./example/multi
+# Run rgxp example
+run-rgxp:
+	@cd .. && go run ./example/rgxp
 
 # Run elk example
 run-elk:
@@ -22,4 +22,5 @@ run-elk:
 run-clickhouse:
 	docker compose -p zap-core-clickhouse down -v
 	docker compose -p zap-core-clickhouse --project-directory ./clickhouse/build up -d
+	sleep 3s # wait docker
 	cd .. && go run ./example/clickhouse
